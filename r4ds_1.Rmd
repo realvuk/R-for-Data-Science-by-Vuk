@@ -1,0 +1,334 @@
+---
+title: "r4ds_1"
+author: "Vuk Dinic"
+date: "2025-02-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1.1 Prerequisites
+```{r tidiverse}
+library(tidyverse)
+```
+
+```{r penguines, gg themes}
+library(palmerpenguins)
+library(ggthemes)
+```
+
+# 1.2 First steps
+```{r The penguins data frame}
+penguins
+```
+
+```{r See all variables}
+glimpse(penguins)
+```
+# 1.2.3 Creating a ggplot
+```{r Blank plot}
+ggplot(data = penguins)
+```
+```{r Aesthetics}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+)
+```
+
+```{r First plot}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point()
+```
+
+# 1.2.4 Adding aesthetics and layers
+```{r Colors on plot}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point()
+```
+```{r Adding lines}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+```{r One line}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+```{r Adding shapes}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+```{r Final plot}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)", y = "Body mass (g)",
+    color = "Species", shape = "Species"
+  )+
+  scale_color_colorblind()
+```
+
+# 1.2.5 Exercises
+```{r How many rows are in penguins? How many columns?}
+dim(penguins)
+```
+
+```{r What does the bill_depth_mm variable in the penguins data frame describe? }
+?penguins
+```
+
+```{r Make a scatterplot of bill_depth_mm vs. bill_length_mm}
+ggplot(
+  data = penguins,
+  mapping = aes(x = bill_length_mm, y = bill_depth_mm)
+)+
+  geom_point()
+```
+```{r What happens if you make a scatterplot of species vs. bill_depth_mm? }
+ggplot(
+  data = penguins,
+  mapping = aes(x = species, y = bill_depth_mm)
+)+
+  geom_boxplot()
+```
+na.rm remove missing values
+```{r na.rm}
+ggplot(
+  data = penguins,
+  mapping = aes(x = bill_length_mm, y = bill_depth_mm, color = species)
+)+
+  geom_point(na.rm = TRUE)
+```
+
+```{r Add the caption}
+ggplot(
+  data = penguins,
+  mapping = aes(x = bill_length_mm, y = bill_depth_mm, color = species)
+)+
+  geom_point(na.rm = TRUE)+
+  labs(caption = "Data come from the palmerpenguins package.")
+```
+
+```{r Recreate the visualization}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(na.rm = TRUE, aes(color = bill_depth_mm)) +
+  geom_smooth(method = "loess")
+```
+```{r Run this code first in your head}
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = island)
+) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+```{r Will these two graphs look different? }
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point() +
+  geom_smooth()
+
+ggplot() +
+  geom_point(
+    data = penguins,
+    mapping = aes(x = flipper_length_mm, y = body_mass_g)
+  ) +
+  geom_smooth(
+    data = penguins,
+    mapping = aes(x = flipper_length_mm, y = body_mass_g)
+  )
+```
+# 1.3ggplot2 calls
+```{r More concise version of code}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point()
+```
+
+```{r Pipe version}
+penguins |> 
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point()
+```
+
+# 1.4 Visualizing distributions
+# 1.4.1 A categorical variable
+```{r A categorical variable}
+ggplot(penguins, aes(x = species)) +
+  geom_bar()
+```
+
+```{r Ordered Bear plot}
+ggplot(penguins, aes(x = fct_infreq(species))) +
+geom_bar()
+```
+
+## 1.4.2 A numerical variable
+```{r Histogram}
+ggplot(penguins, aes(x = body_mass_g, fill = species)) +
+  geom_histogram(binwidth =  200, color = "black")
+```
+
+```{r Line plot}
+ggplot(penguins, aes(x = body_mass_g, color = species)) +
+  geom_density()
+```
+# 1.4.3 Exercises
+```{r Make a bar plot of species of penguins} 
+ggplot(penguins, aes(y = species)) +
+  geom_bar()
+```
+
+```{r How are the following two plots different? }
+ggplot(penguins, aes(x = species)) +
+  geom_bar(color = "red")
+
+ggplot(penguins, aes(x = species)) +
+  geom_bar(fill = "red")
+```
+
+```{r Make a histogram of the carat variable in the diamonds}
+ggplot(diamonds, aes(x=carat)) +
+  geom_histogram(bins = 9)
+```
+
+# 1.5Visualizing relationships
+
+## 1.5.1 A numerical and a categorical variable
+```{r Boxplot}
+ggplot(penguins, aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+```
+
+```{r Line plot 2}
+ggplot(penguins, aes(x=body_mass_g, color = species)) +
+  geom_density(linewidth = 0.75)
+```
+
+```{r Line plot with the fill}
+ggplot(penguins, aes(x = body_mass_g, color = species, fill = species)) +
+  geom_density(alpha = 0.5)
+```
+
+# 1.5.2 Two categorical variables
+```{r Two categorical variables}
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar()
+```
+
+```{r Relative frequency plot}
+ggplot(penguins, aes(x = island, fill = species)) + 
+  geom_bar(position = "fill")
+```
+
+# 1.5.3 Two numerical variables
+```{r Scatterplot}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+# 1.5.4 Three or more variables
+```{r Three or more variables scatter}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = island))
+```
+```{r facets}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species))+
+  facet_wrap(~island)
+```
+# 1.5.5 Exercies
+```{r mpg The mpg data frame}
+mpg
+```
+
+```{r Structure of mpg}
+str(mpg)
+```
+Which variables categorical? manufacturer, model, trans, drv, fl, class
+Which variables are numerical? displ, year, cyl, cty, hwy
+
+```{r Scatter mpg}
+ggplot(mpg, aes(x = displ, y = hwy, color = cty)) +
+  geom_point()
+
+ggplot(mpg, aes(x = displ, y = hwy, size = cty)) +
+  geom_point()
+
+ggplot(mpg, aes(x = displ, y = hwy, color = cty, size = cty)) +
+  geom_point()
+
+ggplot(mpg, aes(x = displ, y = hwy, shape = as.factor(cty))) +
+  geom_point()
+
+ggplot(mpg, aes(x = displ, y = hwy, linewidth = cty)) +
+  geom_point()
+```
+
+```{r Make a scatterplot of bill_depth_mm vs. bill_length_mm and color the points by species}
+ggplot(penguins, aes(x=bill_depth_mm, y=bill_length_mm, color=species))+
+  geom_point()
+```
+
+```{r Why does the following yield two separate legends?}
+ggplot(
+  data = penguins,
+  mapping = aes(
+    x = bill_length_mm, y = bill_depth_mm, 
+    color = species, shape = species
+  )
+) +
+  geom_point() +
+  labs(color = "Species")
+```
+
+```{r Create the two following stacked bar plots}
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(position = "fill")
+ggplot(penguins, aes(x = species, fill = island)) +
+  geom_bar(position = "fill")
+```
+# 1.6 Saving your plots
+```{r Save plot}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+ggsave(filename = "penguin-plot.png")
+```
+# 1.6.1 Exercises
+```{r Save two plots with the same name}
+ggplot(mpg, aes(x = class)) +
+  geom_bar()
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave("mpg-plot.png")
+```
+
