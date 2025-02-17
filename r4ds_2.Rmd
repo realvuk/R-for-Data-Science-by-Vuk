@@ -1,0 +1,75 @@
+---
+title: "r4ds_2"
+author: "Vuk Dinic"
+date: "2025-02-17"
+output: html_document
+---
+# Workflow: basics
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 2.1 Coding basics
+```{r Bacis calculations}
+1 / 200 * 30
+
+(59 + 73 + 2) / 3
+
+sin(pi / 2)
+```
+
+```{r Create new object}
+x <- 3 * 4
+x
+```
+```{r combining elements into a vector}
+primes <- c(2, 3, 5, 7, 11, 13)
+```
+
+```{r Basic arithmetic on vectors}
+primes * 2
+```
+Alt plus minus sign creates <-
+
+# 2.2 Comments
+```{r Commenting}
+# create vector of primes
+primes <- c(2, 3, 5, 7, 11, 13)
+
+# multiply primes by 2
+primes * 2
+#> [1]  4  6 10 14 22 26
+```
+
+# 2.3 What’s in a name?
+```{r Object names}
+this_is_a_really_long_name <- 2.5
+```
+
+# 2.4 Calling functions
+```{r you can use TAB to autocomplete your code}
+seq(from = 1, to = 10)
+```
+
+# 2.5 Exercises
+```{r Why this code doesn't work?}
+my_variable <- 10
+my_varıable
+```
+my_variable and my_varıable are not the same. Take a look at i
+
+```{r Tweak each of the following R commands so that they run correctly}
+libary(tidyverse) #should be library and tidyverse
+
+ggplot(dTA = mpg) + 
+  geom_point(maping = aes(x = displ y = hwy)) + #you should add , after disply
+  geom_smooth(method = "lm ) " #you should add " after lm
+```
+
+```{r Which of the two plots is saved as mpg-plot.png?}
+my_bar_plot <- ggplot(mpg, aes(x = class)) +
+  geom_bar()
+my_scatter_plot <- ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave(filename = "mpg-plot.png", plot = my_bar_plot)
+```
