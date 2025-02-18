@@ -1,0 +1,417 @@
+---
+title: "r4ds_3"
+author: "Vuk Dinic"
+date: "2025-02-18"
+output: html_document
+---
+# Data transofmration
+
+## 3.1 Introduction
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### 3.1.1 Prerequisites
+```{r Packages import}
+library(nycflights13)
+library(tidyverse)
+```
+### 3.1.2 nycflights13
+```{r see dataset}
+flights
+```
+
+```{r show all columns}
+glimpse(flights)
+```
+
+### 3.1.3 dplyr basics
+```{r pipes}
+flights |>
+  filter(dest == "IAH") |>
+  group_by(year, month, day) |>
+  summarize(
+    arr_delay = mean(arr_delay, na.rm = TRUE)
+  )
+```
+
+## 3.2 Rows
+### 3.2.1 filter()
+```{r filter}
+flights |>
+  filter(dep_delay > 120)
+```
+```{r filter 2}
+flights |>
+  filter(month == 1 & day == 1)
+```
+```{r filter 3}
+flights |>
+  filter(month == 1 | month == 2)
+```
+```{r filter %in%}
+flights |> 
+  filter(month %in% c(1, 2))
+```
+```{r save filtered dataframe}
+jan1 <- flights |>
+  filter(month == 1 & day == 1)
+```
+
+### 3.2.2 Common mistakes
+```{r using = instead of ==}
+flights |>
+  filter(month = 1)
+```
+```{r using or like you would in English}
+flights |>
+  filter(month == 1 | 2)
+```
+
+### 3.2.3 arrange()
+```{r arrange}
+flights |>
+  arrange(year, month, day, dep_time)
+```
+```{r desc}
+flights |>
+  arrange(desc(dep_delay))
+```
+
+### 3.2.4 distinct()
+```{r distinct}
+flights |>
+  distinct(origin, dest)
+```
+```{r distinct but keep all columns}
+flights |>
+  distinct(origin, dest, .keep_all = TRUE)
+
+```
+```{r count}
+flights |>
+  count(origin, dest, sort = TRUE)
+```
+### 3.2.5 Exercises
+```{r}
+flights |>
+  
+  distinct(carrier)
+```
+
+
+```{r}
+flights |>
+  filter(arr_delay >= 2) |>
+  filter(dest == "IAH" | dest == "HOU") |>
+  filter(carrier == "UA" | carrier == "AA" | carrier == "DL") |>
+  filter(month == 7 | month == 8 | month == 9) |>
+  filter(arr_delay >= 2 | dep_delay == 0) |>
+  filter(dep_delay >= 2 | arr_delay == 0.5)
+```
+```{r}
+flights |>
+  arrange(desc(dep_delay))
+```
+```{r}
+flights |>
+  arrange(dep_time)
+```
+```{r}
+
+flights |> 
+  mutate(duration = sched_arr_time - sched_dep_time) |>  # Compute duration
+  arrange(duration)
+```
+```{r}
+flights |>
+  distinct(day, month, .keep_all = TRUE) |>
+  arrange(flight)
+```
+```{r}
+flights |>
+  arrange(distance)
+```
+```{r}
+flights |>
+  arrange(desc(distance))
+```
+
+## 3.3 Columns
+### 3.3.1 mutate()
+```{r mutate}
+flights |>
+  mutate(
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+    )
+```
+```{r .before}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+```
+```{r after}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .after = day
+  )
+```
+```{r .keep}
+flights |>
+  mutate(
+    gain = dep_time - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+```
+### 3.3.2 select()
+
+```{r select}
+flights |>
+  select(year, month, day)
+```
+```{r select all between}
+flights |>
+  select(year:day)
+```
+```{r select all except}
+flights |>
+  select(!year:day)
+```
+```{r select all coumns that are characters}
+flights |>
+  select(where(is.character))
+```
+
+```{r rename with select}
+flights |> 
+  select(tail_num = tailnum)
+```
+### 3.3.3 rename()
+```{r}
+flights |>
+  rename(tail_num = tailnum)
+```
+
+### 3.3.4 relocate()
+```{r relocate}
+flights |>
+  relocate(time_hour, air_time)
+```
+```{r relocate but specify where}
+flights |>
+  relocate(year:dep_time, .after = time_hour)
+flights |>
+  relocate(starts_with("arr"), .before = dep_time)
+```
+
+### 3.3.5 Exercises
+```{r}
+flights |>
+  select(dep_time, sched_dep_time, dep_delay)
+```
+```{r}
+flights |>
+  select(dep_time, dep_time, dep_time)
+```
+```{r}
+flights |>
+  select(
+    any_of(
+      variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+      )
+    )
+```
+```{r}
+flights |> 
+  select(contains("TIME"))
+```
+```{r}
+flights |> 
+  rename(air_time_min = air_time) |> 
+  relocate(air_time_min)
+```
+```{r}
+flights |> 
+  select(tailnum) |> 
+  arrange(arr_delay)
+#> Error in `arrange()`:
+#> ℹ In argument: `..1 = arr_delay`.
+#> Caused by error:
+#> ! object 'arr_delay' not found
+```
+
+## 3.4 The pipe
+```{r find the fastest flights to Houston’s IAH}
+flights |>
+  filter(dest == "IAH") |>
+  mutate(speed = distance / air_time * 60) |>
+  select(year:day, dep_time, carrier, flight, speed) |>
+  arrange(desc(speed))
+```
+## 3.5 Groups
+### 3.5.1 group_by()
+```{r}
+flights %>% 
+  group_by(month)
+```
+
+### 3.5.2 summarize()
+```{r summarize}
+flights |>
+  group_by(month) |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE)
+  )
+```
+```{r}
+flights |>
+  group_by(month) |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n = n()
+  )
+```
+### 3.5.3 The slice_ function
+
+```{r}
+flights %>% 
+  group_by(dest) %>%
+  slice_max(arr_delay, n=1) %>% 
+  relocate(dest)
+```
+### 3.5.4 Grouping by multiple variables
+```{r}
+daily <- flights %>% 
+  group_by(year, month, day)
+daily
+```
+```{r}
+daily_flights <- daily %>% 
+  summarize(
+    n = n(),
+    .groups = "drop_last"
+  )
+```
+
+### 3.5.5 Ungrouping
+```{r}
+daily %>% 
+  ungroup()
+```
+```{r}
+daily %>% 
+  ungroup() %>% 
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    flights = n()
+  )
+```
+
+### 3.5.6 .by
+```{r}
+flights %>% 
+  summarize(
+    daily = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = month
+  )
+```
+```{r}
+flights %>% 
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(origin, dest)
+  )
+```
+### 3.5.7 Exercises
+```{r}
+flights %>% 
+  group_by(carrier, dest) %>% 
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n()
+    ) %>% 
+arrange(desc(delay))
+```
+```{r}
+flights %>% 
+  group_by(dest) %>% 
+  arrange(desc(arr_delay))
+```
+```{r}
+flights %>% 
+  mutate(day_time = hour * 60 + minute) %>%
+  group_by(day_time) %>%
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE)) %>% 
+  ggplot(aes(x=day_time, y=avg_delay))+
+    geom_smooth()+
+    labs(
+      x = "Time of Day (Minutes Since Midnight)", y = "Average Departure Delay",
+      title = "Flight Delays Over the Course of the Day")+
+    theme_update()
+```
+```{r}
+flights %>% 
+  slice_min(arr_delay, n=-1)
+```
+```{r}
+df <- tibble(
+  x = 1:5,
+  y = c("a", "b", "a", "a", "b"),
+  z = c("K", "K", "L", "L", "K")
+)
+```
+```{r}
+df |>
+  group_by(y)
+```
+```{r}
+df |>
+  group_by(y) |>
+  summarize(mean_x = mean(x))
+```
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x))
+```
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x), .groups = "drop")
+```
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x))
+
+df |>
+  group_by(y, z) |>
+  mutate(mean_x = mean(x))
+```
+
+## 3.6 Case study: aggregates and sample size
+```{r}
+batters <- Lahman::Batting %>% 
+  group_by(playerID) %>% 
+  summarize(
+    performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    n = sum(AB, na.rm = TRUE)
+  )
+batters
+```
+```{r}
+batters %>% 
+  filter(n > 100) %>% 
+  ggplot(aes(x = n, y = performance))+
+  geom_point(alpha = 1 / 10) +
+  geom_smooth(se = FALSE)
+```
