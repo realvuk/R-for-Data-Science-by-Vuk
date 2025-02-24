@@ -1,0 +1,280 @@
+---
+title: "r4ds_5"
+author: "Vuk Dinic"
+date: "2025-02-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data transformation
+
+## 5.1 Introduction
+### 5.1.1 Prerequisites
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+### 5.1.2 nycflights13
+```{r}
+flights <- nycflights13::flights
+```
+
+## 5.2 Filter rows with filter()
+```{r}
+filter(flights, month == 1, day == 1)
+```
+
+```{r}
+jan1 <- filter(flights, month == 1, day == 1)
+```
+
+```{r}
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+
+### 5.2.1 Comparisons
+```{r}
+filter(flights, month = 1)
+```
+
+```{r}
+sqrt(2) ^ 2 == 2
+```
+
+```{r}
+1 / 49 * 49 == 1
+```
+
+```{r}
+near(sqrt(2) ^ 2,  2)
+```
+
+```{r}
+near(1 / 49 * 49, 1)
+```
+### 5.2.2 Logical operators
+```{r}
+filter(flights, month == 11 | month == 12)
+```
+
+```{r}
+nov_dec <- filter(flights, month %in% c(11, 12))
+```
+
+```{r}
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+
+### 5.2.3 Missing values
+```{r}
+NA > 5
+```
+
+## 5.3 Arrange rows with arrange()
+```{r}
+arrange(flights, year, month, day)
+```
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+```{r}
+df <- tibble(x = c(5, 2, NA))
+```
+
+## 5.4 Select columns with select()
+```{r}
+# Select columns by name
+select(flights, year, month, day)
+```
+
+```{r}
+rename(flights, tail_num = tailnum)
+```
+
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+
+## 5.5 Add new variables with mutate()
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+
+flights_sml <- mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+)
+```
+
+```{r}
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+```{r}
+transmute(flights,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+### 5.5.1 Useful creation functions
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+```
+
+```{r}
+(x <- 1:10)
+```
+```{r}
+lag(x)
+```
+```{r}
+lead(x)
+```
+## 5.6 Grouped summaries with summarise()
+```{r}
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+```{r}
+by_day <- group_by(flights, year, month, day)
+```
+```{r}
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+### 5.6.1 Combining multiple operations with the pipe
+```{r}
+by_dest <- group_by(flights, dest)
+```
+```{r}
+delay <- summarise(by_dest,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE)
+)
+```
+```{r}
+delay <- filter(delay, count > 20, dest != "HNL")
+```
+
+```{r}
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+```
+
+### 5.6.2 Missing values
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay, na.rm = TRUE))
+```
+
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+```
+
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+
+### 5.6.3 Counts
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay)
+  )
+```
+```{r}
+ggplot(data = delays, mapping = aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+```
+
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+```
+```{r}
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+
+```{r}
+delays %>% 
+  filter(n > 25) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10
+```
+
+### 5.6.4 Useful summary functions
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    avg_delay1 = mean(arr_delay),
+    avg_delay2 = mean(arr_delay[arr_delay > 0]) # the average positive delay
+  )
+```
+
+### 5.6.5 Grouping by multiple variables
+```{r}
+
+```
+
+### 5.6.6 Ungrouping
+```{r}
+
+```
+
+## 5.7 Grouped mutates (and filters)
+```{r}
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+```
+
