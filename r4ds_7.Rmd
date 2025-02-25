@@ -1,0 +1,179 @@
+---
+title: "r4ds_7"
+author: "Vuk Dinic"
+date: "2025-02-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data import
+
+## 7.1 Introduction
+### 7.1.1 Prerequisites
+```{r}
+library(tidyverse)
+```
+## 7.2 Reading data from a file
+```{r}
+students <- read_csv("https://pos.it/r4ds-students-csv")
+```
+### 7.2.1 Practical advice
+```{r}
+students
+```
+```{r}
+students <- read_csv("https://pos.it/r4ds-students-csv", na = c("N/A", ""))
+```
+```{r}
+students
+```
+```{r}
+students %>% 
+  rename(
+    student_id = 'Student ID',
+    full_name = 'Full Name'
+  )
+```
+```{r}
+students %>% janitor::clean_names()
+```
+```{r}
+students %>% 
+  janitor::clean_names() %>% 
+  mutate(meal_plan = factor(meal_plan))
+```
+```{r}
+students <- students %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    meal_plan = factor(meal_plan),
+    age = parse_number(if_else(age == "five", "5", age))
+  )
+```
+
+### 7.2.2 Other arguments
+```{r}
+read_csv(
+  "a,b,c
+  1,2,3
+  4,5,6"
+)
+```
+```{r}
+read_csv(
+  "The first line of metadata
+  The second line of metadata
+  x,y,z
+  1,2,3",
+  skip = 2
+)
+```
+```{r}
+read_csv(
+  "# A comment I want to skip
+  x,y,z
+  1,2,3",
+  comment = "#"
+)
+```
+```{r}
+read_csv(
+  "1,2,3
+  4,5,6",
+  col_names = FALSE
+)
+```
+```{r}
+read_csv(
+  "1,2,3
+  4,5,6",
+  col_names = c("x", "y", "z")
+)
+```
+## 7.3 Controlling column types
+
+### 7.3.1 Guessing types
+
+```{r}
+read_csv("
+  logical,numeric,date,string
+  TRUE,1,2021-01-15,abc
+  false,4.5,2021-02-15,def
+  T,Inf,2021-02-16,ghi
+")
+```
+### 7.3Missing values, column types and problems
+```{r}
+simple_csv <- "
+  x
+  10
+  .
+  20
+  30"
+```
+
+```{r}
+read_csv(simple_csv)
+```
+
+```{r}
+df <- read_csv(
+  simple_csv,
+  col_types = list(x = col_double())
+) 
+```
+
+```{r}
+problems(df)
+```
+
+```{r}
+read_csv(simple_csv, na = ".")
+```
+```{r}
+another_csv <- "x,y,z 1,2,3"
+```
+
+```{r}
+read_csv(
+  another_csv, 
+  col_types = cols(.default = col_character())
+)
+```
+## 7.4 Reading data from multiple files
+
+```{r}
+sales_files <- c("https://pos.it/r4ds-01-sales", "https://pos.it/r4ds-02-sales", "https://pos.it/r4ds-03-sales")
+```
+
+```{r}
+read_csv(sales_files, id = "file")
+```
+
+## 7.5 Writing to a file
+
+```{r}
+write_csv(students, "students.csv")
+```
+
+## 7.6 Data entry
+
+```{r}
+tibble(
+  x = c(1, 2, 5), 
+  y = c("h", "m", "g"),
+  z = c(0.08, 0.83, 0.60)
+)
+```
+```{r}
+tribble(
+  ~x, ~y, ~z,
+  1, "h", 0.08,
+  2, "m", 0.83,
+  5, "g", 0.60
+)
+```
+
