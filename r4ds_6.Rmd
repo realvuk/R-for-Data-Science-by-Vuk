@@ -1,0 +1,59 @@
+---
+title: "r4ds_6"
+author: "Vuk Dinic"
+date: "2025-02-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 6  Workflow: scripts and projects
+
+## 6.1 Scripts
+
+### 6.1.1 Running code
+
+```{r}
+library(dplyr)
+library(nycflights13)
+```
+```{r}
+not_canceled <- flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+```
+
+```{r}
+not_canceled %>% 
+  group_by(year, month, day) %>% 
+  summarize(mean = mean(dep_delay))
+```
+### 6.1.2 RStudio diagnostics
+
+```{r}
+x y <-  10
+```
+
+## 6.2 Projects
+
+### 6.2.1 What is the source of truth
+### 6.2.2 Where does your analysis live?
+```{r}
+getwd()
+```
+```{r}
+#setwd("/path/to/my/CoolProject")
+```
+
+### 6.2.3 RStudio projects
+```{r}
+library(tidyverse)
+```
+```{r}
+ggplot(diamonds, aes(x = carat, y = price))+
+  geom_hex()
+ggsave("diamonds.png")
+```
+### 6.2.4 Relative and absolute path
+
