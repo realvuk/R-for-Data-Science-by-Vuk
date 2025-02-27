@@ -1,0 +1,370 @@
+---
+r4ds_9title: "r4ds_9"
+author: "Vuk Dinic"
+date: "2025-02-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 9 Layers
+
+## 9.1 Introduction
+
+## 9.1.1 Prerequisites
+
+```{r}
+library(tidyverse)
+```
+## 9.2 Aesthetic mappings
+
+```{r}
+mpg
+```
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) + 
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, shape = class)) + 
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, size = class)) + 
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, alpha = class)) + 
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(color = "blue")
+```
+### 9.2.1 Exercises
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(shape = 24, color = "pink", fill = "pink")
+```
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy, color = "blue"))
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(color = "blue")
+```
+```{r}
+?geom_point
+```
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(shape = 21, colour = "black", fill = "white", size = 5, stroke = 2)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, color = displ < 5)) + 
+  geom_point()
+```
+## 9.3 Geometric objects
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_smooth()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, shape = drv)) +
+  geom_smooth()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, linetype = drv)) + 
+  geom_smooth()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() +
+  geom_smooth(aes(linetype = drv))
+``` 
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_smooth()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_smooth(aes(group = drv))
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy))+
+  geom_smooth(aes(color = drv), show.legend = FALSE)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_point(
+    data = mpg %>% filter(class == "2seater"),
+    color = "red"
+  )+
+  geom_point(
+    data = mpg %>% filter(class == "2seater"),
+    shape = "circle open", size = 3, color = "red"
+  )
+```
+```{r}
+ggplot(mpg, aes(x = hwy)) +
+  geom_histogram(binwidth = 2)
+```
+```{r}
+ggplot(mpg, aes(x = hwy)) +
+  geom_density()
+```
+```{r}
+ggplot(mpg, aes(x = hwy)) +
+  geom_boxplot()
+```
+```{r}
+library(ggridges)
+```
+```{r}
+ggplot(mpg, aes(x = hwy, y = drv, fill = drv, color = drv))+
+  geom_density_ridges(alpha = 0.5, show.legend = FALSE)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(color = "blue", se = FALSE)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(color = drv), se = FALSE)
+```
+
+```{r}
+gplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(aes(group = drv), color = "blue", se = FALSE, show.legend = FALSE)
+```
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(color = "blue", se = FALSE)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE, show.legend = FALSE) 
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(fill = drv), shape = 21, color = "white", stroke = 1)
+```
+## 9.4 Facets
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_wrap(~cyl)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(drv ~ cyl)
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(drv ~ cyl, scales = "free")
+```
+### 9.4.1 Exercises
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = drv, y = cyl))
+```
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) + 
+  facet_wrap(~ cyl, nrow = 2)
+```
+```{r}
+ggplot(mpg, aes(x = displ)) + 
+  geom_histogram() + 
+  facet_grid(drv ~ .)
+```
+```{r}
+ggplot(mpg, aes(x = displ)) +
+  geom_histogram() +
+  facet_grid(. ~drv)
+```
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+```{r}
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_wrap(drv ~ .)
+```
+
+## 9.5 Statistical transformations
+```{r}
+ggplot(diamonds, aes(x = cut)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(cut) %>% 
+  ggplot(aes(x = cut, y = n)) +
+  geom_bar(stat = "identity")
+```
+```{r}
+ggplot(diamonds, aes(x = cut, y = after_stat(prop), group = 1)) +
+  geom_bar()
+```
+```{r}
+ggplot(diamonds) +
+  stat_summary(
+    aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+  )
+```
+### 9.5.1 Exercises
+```{r}
+ggplot(mpg, aes(x = drv, y = cyl)) +
+  geom_col()
+```
+```{r}
+ggplot(diamonds, aes(x = cut, y = after_stat(prop))) + 
+  geom_bar()
+```
+```{r}
+ggplot(diamonds, aes(x = cut, fill = color, y = after_stat(prop))) + 
+  geom_bar()
+```
+## 9.6 Position adjustments
+```{r}
+ggplot(mpg, aes(x = drv, color = drv)) +
+  geom_bar()
+```
+```{r}
+ggplot(mpg, aes(x = drv, fill = drv)) +
+  geom_bar()
+  
+```
+```{r}
+ggplot(mpg, aes(x = drv, fill = class))+
+  geom_bar()
+```
+```{r}
+ggplot(mpg, aes(x = drv, fill = class)) +
+  geom_bar(alpha = 1/5, position = "identity")
+```
+```{r}
+ggplot(mpg, aes(x = drv, color = class)) +
+  geom_bar(fill = NA, position = "identity")
+```
+```{r}
+ggplot(mpg, aes(x = drv, fill = class)) +
+  geom_bar(position = "fill")
+```
+```{r}
+ggplot(mpg, aes(x = drv, fill = class)) + 
+  geom_bar(position = "dodge")
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(position = "jitter")
+```
+### 9.6.1
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_jitter()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(position = "identity")
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_count()
+```
+## 9.7 Coordinate systems
+```{r}
+nz <- map_data("nz")
+```
+```{r}
+ggplot(nz, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", color = "black")
+```
+```{r}
+ggplot(nz, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", color = "black") +
+  coord_quickmap()
+```
+```{r}
+bar <- ggplot(data = diamonds) +
+  geom_bar(
+    mapping = aes(x = clarity, fill = clarity),
+    show.legend = FALSE,
+    widht = 1
+  ) +
+  theme(aspect.ratio = 1)
+
+bar + coord_flip()
+```
+```{r}
+bar <- ggplot(data = diamonds) +
+  geom_bar(
+    mapping = aes(x = clarity, fill = clarity),
+    show.legend = FALSE,
+    widht = 1
+  ) +
+  theme(aspect.ratio = 1)
+
+bar + coord_polar()
+```
+### 9.7.1 Exercises
+```{r}
+ggplot(nz, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", color = "black") +
+  coord_map()
+```
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() +
+  geom_abline() +
+  coord_fixed()
+```
+## 9.8 The layered grammar of graphics
+```{r}
+
+```
+
