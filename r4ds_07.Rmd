@@ -1,5 +1,5 @@
 ---
-title: "r4ds_7"
+title: "r4ds_07"
 author: "Vuk Dinic"
 date: "2025-02-25"
 output: html_document
