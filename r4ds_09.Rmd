@@ -112,11 +112,11 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point() +
   geom_point(
-    data = mpg %>% filter(class == "2seater"),
+    data = mpg |> filter(class == "2seater"),
     color = "red"
   )+
   geom_point(
-    data = mpg %>% filter(class == "2seater"),
+    data = mpg |> filter(class == "2seater"),
     shape = "circle open", size = 3, color = "red"
   )
 ```
@@ -230,8 +230,8 @@ ggplot(diamonds, aes(x = cut)) +
   geom_bar()
 ```
 ```{r}
-diamonds %>%
-  count(cut) %>% 
+diamonds |>
+  count(cut) |> 
   ggplot(aes(x = cut, y = n)) +
   geom_bar(stat = "identity")
 ```
