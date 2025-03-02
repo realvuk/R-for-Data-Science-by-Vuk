@@ -184,44 +184,44 @@ ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
 ```
 
 ```{r}
-delays <- flights %>% 
-  group_by(dest) %>% 
+delays <- flights |> 
+  group_by(dest) |> 
   summarise(
     count = n(),
     dist = mean(distance, na.rm = TRUE),
     delay = mean(arr_delay, na.rm = TRUE)
-  ) %>% 
+  ) |> 
   filter(count > 20, dest != "HNL")
 ```
 
 ### 5.6.2 Missing values
 ```{r}
-flights %>% 
-  group_by(year, month, day) %>% 
+flights |> 
+  group_by(year, month, day) |> 
   summarise(mean = mean(dep_delay))
 ```
 
 ```{r}
-flights %>% 
-  group_by(year, month, day) %>% 
+flights |> 
+  group_by(year, month, day) |> 
   summarise(mean = mean(dep_delay, na.rm = TRUE))
 ```
 
 ```{r}
-not_cancelled <- flights %>% 
+not_cancelled <- flights |> 
   filter(!is.na(dep_delay), !is.na(arr_delay))
 ```
 
 ```{r}
-not_cancelled %>% 
-  group_by(year, month, day) %>% 
+not_cancelled |> 
+  group_by(year, month, day) |> 
   summarise(mean = mean(dep_delay))
 ```
 
 ### 5.6.3 Counts
 ```{r}
-delays <- not_cancelled %>% 
-  group_by(tailnum) %>% 
+delays <- not_cancelled |> 
+  group_by(tailnum) |> 
   summarise(
     delay = mean(arr_delay)
   )
@@ -232,8 +232,8 @@ ggplot(data = delays, mapping = aes(x = delay)) +
 ```
 
 ```{r}
-delays <- not_cancelled %>% 
-  group_by(tailnum) %>% 
+delays <- not_cancelled |> 
+  group_by(tailnum) |> 
   summarise(
     delay = mean(arr_delay, na.rm = TRUE),
     n = n()
@@ -245,16 +245,16 @@ ggplot(data = delays, mapping = aes(x = n, y = delay)) +
 ```
 
 ```{r}
-delays %>% 
-  filter(n > 25) %>% 
+delays |> 
+  filter(n > 25) |> 
   ggplot(mapping = aes(x = n, y = delay)) + 
     geom_point(alpha = 1/10
 ```
 
 ### 5.6.4 Useful summary functions
 ```{r}
-not_cancelled %>% 
-  group_by(year, month, day) %>% 
+not_cancelled |> 
+  group_by(year, month, day) |> 
   summarise(
     avg_delay1 = mean(arr_delay),
     avg_delay2 = mean(arr_delay[arr_delay > 0]) # the average positive delay
@@ -273,8 +273,8 @@ not_cancelled %>%
 
 ## 5.7 Grouped mutates (and filters)
 ```{r}
-flights_sml %>% 
-  group_by(year, month, day) %>%
+flights_sml |> 
+  group_by(year, month, day) |>
   filter(rank(desc(arr_delay)) < 10)
 ```
 
