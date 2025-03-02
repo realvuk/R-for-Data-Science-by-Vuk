@@ -17,7 +17,7 @@ library(nycflights13)
 
 ## 4.1 Names
 ```{r}
-short_flights <- flights %>% filter(air_time < 60)
+short_flights <- flights |> filter(air_time < 60)
 ```
 
 ## 4.2 Spaces
@@ -38,7 +38,7 @@ short_flights <- flights %>% filter(air_time < 60)
 ```
 
 ```{r}
-flights %>%
+flights |>
   mutate(
     speed      = distance / air_time,
     dep_hour   = dep_time %/% 100,
@@ -50,19 +50,19 @@ flights %>%
 ## 4.3 Pipes
 ```{r}
 # Strive for
-flights %>% 
-  filter(!is.na(arr_delay), !is.na(tailnum)) %>% 
+flights |> 
+  filter(!is.na(arr_delay), !is.na(tailnum)) |> 
   count(dest)
 
 ```
 ```{r}
 # Avoid
-flights%>%filter(!is.na(arr_delay),!is.na(tailnum))%>%count(dest)
+flights|>filter(!is.na(arr_delay),!is.na(tailnum))|>count(dest)
 ```
 ```{r}
 # Strive for
-flights %>% 
-  group_by(tailnum) %>% 
+flights |> 
+  group_by(tailnum) |> 
   summarize(
     delay = mean(arr_delay, na.rm = TRUE),
     n = n()
@@ -70,10 +70,10 @@ flights %>%
 ```
 ```{r}
 # Avoid
-flights %>% 
+flights |> 
   group_by(
     tailnum
-  ) %>% 
+  ) |> 
   summarize(delay = mean(arr_delay, na.rm = TRUE), n=n())
 ```
 ```{r}
@@ -139,17 +139,17 @@ flights|>filter(dest=="IAH")|>group_by(year,month,day)|>summarize(n=n(),
 delay=mean(arr_delay,na.rm=TRUE))|>filter(n>10)
 ```
 ```{r}
-flights %>% 
+flights |> 
   
-  filter(dest == "IAH") %>% 
+  filter(dest == "IAH") |> 
   
-  group_by(year, month, day) %>% 
+  group_by(year, month, day) |> 
   
   summarize(n = n(),
             
 delay =
   
-  mean(arr_delay, na.rm = TRUE)) %>% 
+  mean(arr_delay, na.rm = TRUE)) |> 
   
   filter(n > 10)
 ```
@@ -161,17 +161,17 @@ flights|>filter(carrier=="UA",dest%in%c("IAH","HOU"),sched_dep_time>
 arr_delay,na.rm=TRUE),cancelled=sum(is.na(arr_delay)),n=n())|>filter(n>10)
 ```
 ```{r}
-flights %>% 
+flights |> 
   filter(
     carrier == "UA",
     dest%in%c("IAH", "HOU"),
     sched_dep_time > 0900,
-    sched_arr_time < 2000) %>% 
-  group_by(flight) %>% 
+    sched_arr_time < 2000) |> 
+  group_by(flight) |> 
   summarize(
     delay = mean(arr_delay,na.rm = TRUE),
     cancelled = sum(is.na(arr_delay)),
-    n = n()) %>% 
+    n = n()) |> 
   filter(n > 10)
 ```
 
