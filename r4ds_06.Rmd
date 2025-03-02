@@ -20,13 +20,13 @@ library(dplyr)
 library(nycflights13)
 ```
 ```{r}
-not_canceled <- flights %>%
+not_canceled <- flights |>
   filter(!is.na(dep_delay), !is.na(arr_delay))
 ```
 
 ```{r}
-not_canceled %>% 
-  group_by(year, month, day) %>% 
+not_canceled |> 
+  group_by(year, month, day) |> 
   summarize(mean = mean(dep_delay))
 ```
 ### 6.1.2 RStudio diagnostics
