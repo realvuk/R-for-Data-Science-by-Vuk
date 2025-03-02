@@ -258,7 +258,7 @@ flights |>
 ## 3.5 Groups
 ### 3.5.1 group_by()
 ```{r}
-flights %>% 
+flights |> 
   group_by(month)
 ```
 
@@ -281,19 +281,19 @@ flights |>
 ### 3.5.3 The slice_ function
 
 ```{r}
-flights %>% 
-  group_by(dest) %>%
-  slice_max(arr_delay, n=1) %>% 
+flights |> 
+  group_by(dest) |>
+  slice_max(arr_delay, n=1) |> 
   relocate(dest)
 ```
 ### 3.5.4 Grouping by multiple variables
 ```{r}
-daily <- flights %>% 
+daily <- flights |> 
   group_by(year, month, day)
 daily
 ```
 ```{r}
-daily_flights <- daily %>% 
+daily_flights <- daily |> 
   summarize(
     n = n(),
     .groups = "drop_last"
@@ -302,12 +302,12 @@ daily_flights <- daily %>%
 
 ### 3.5.5 Ungrouping
 ```{r}
-daily %>% 
+daily |> 
   ungroup()
 ```
 ```{r}
-daily %>% 
-  ungroup() %>% 
+daily |> 
+  ungroup() |> 
   summarize(
     avg_delay = mean(dep_delay, na.rm = TRUE),
     flights = n()
@@ -316,7 +316,7 @@ daily %>%
 
 ### 3.5.6 .by
 ```{r}
-flights %>% 
+flights |> 
   summarize(
     daily = mean(dep_delay, na.rm = TRUE),
     n = n(),
@@ -324,7 +324,7 @@ flights %>%
   )
 ```
 ```{r}
-flights %>% 
+flights |> 
   summarize(
     delay = mean(dep_delay, na.rm = TRUE),
     n = n(),
@@ -333,24 +333,24 @@ flights %>%
 ```
 ### 3.5.7 Exercises
 ```{r}
-flights %>% 
-  group_by(carrier, dest) %>% 
+flights |> 
+  group_by(carrier, dest) |> 
   summarize(
     delay = mean(dep_delay, na.rm = TRUE),
     n = n()
-    ) %>% 
+    ) |> 
 arrange(desc(delay))
 ```
 ```{r}
-flights %>% 
-  group_by(dest) %>% 
+flights |> 
+  group_by(dest) |> 
   arrange(desc(arr_delay))
 ```
 ```{r}
-flights %>% 
-  mutate(day_time = hour * 60 + minute) %>%
-  group_by(day_time) %>%
-  summarize(avg_delay = mean(dep_delay, na.rm = TRUE)) %>% 
+flights |> 
+  mutate(day_time = hour * 60 + minute) |>
+  group_by(day_time) |>
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE)) |> 
   ggplot(aes(x=day_time, y=avg_delay))+
     geom_smooth()+
     labs(
@@ -359,7 +359,7 @@ flights %>%
     theme_update()
 ```
 ```{r}
-flights %>% 
+flights |> 
   slice_min(arr_delay, n=-1)
 ```
 ```{r}
@@ -400,8 +400,8 @@ df |>
 
 ## 3.6 Case study: aggregates and sample size
 ```{r}
-batters <- Lahman::Batting %>% 
-  group_by(playerID) %>% 
+batters <- Lahman::Batting |> 
+  group_by(playerID) |> 
   summarize(
     performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
     n = sum(AB, na.rm = TRUE)
@@ -409,8 +409,8 @@ batters <- Lahman::Batting %>%
 batters
 ```
 ```{r}
-batters %>% 
-  filter(n > 100) %>% 
+batters |> 
+  filter(n > 100) |> 
   ggplot(aes(x = n, y = performance))+
   geom_point(alpha = 1 / 10) +
   geom_smooth(se = FALSE)
