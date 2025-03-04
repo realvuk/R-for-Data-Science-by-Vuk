@@ -1,0 +1,367 @@
+---
+r4ds_12title: "r4ds_12"
+author: "Vuk Dinic"
+date: "2025-03-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 12 Logical vestors
+## 12.1 Introduction
+### 12.1.1 Prerequsites
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+x <- c(1, 2, 3, 5, 7, 11, 13)
+```
+```{r}
+x * 2
+```
+```{r}
+df <- tibble(x)
+```
+```{r}
+df |> mutate(y = x * 2)
+```
+## 12.2 Comparisons
+
+```{r}
+flights |> 
+  filter(dep_time > 600 & dep_time < 2000 & abs(arr_delay) < 20)
+```
+```{r}
+flights |> 
+  mutate(
+    daytime = dep_time > 600 & dep_time < 2000,
+    approx_ontime = abs(arr_delay) < 20,
+    .keep = "used"
+  )
+```
+```{r}
+flights |> 
+  mutate(
+    daytime = dep_time > 600 & dep_time < 2000,
+    approx_ontime = abs(arr_delay) < 20,
+  ) |> 
+  filter(daytime & approx_ontime)
+```
+### 1.2.1 Floating point comarison
+
+```{r}
+x <- c(1 / 49 * 49, sqrt(2) ^ 2)
+x
+```
+```{r}
+x == c(1,2)
+```
+```{r}
+print(x, digits = 16)
+```
+```{r}
+near(x, c(1, 2))
+```
+
+### 12.2.2 Missing values
+```{r}
+NA > 5
+```
+```{r}
+10 == NA
+```
+```{r}
+NA = NA
+```
+```{r}
+# We don't know how old Mary is
+age_mary <- NA
+```
+```{r}
+# We don't know how old John is
+age_john <- NA
+```
+
+```{r}
+# Are Mary and John the same age?
+age_mary == age_john
+```
+We don't know!
+
+```{r}
+flights |> 
+  filter(dep_time == NA)
+```
+### 12.2.3 is.na()
+```{r}
+is.na(c(TRUE, NA, FALSE))
+```
+```{r}
+is.na(c(1, NA, 3))
+```
+```{r}
+is.na(c("a", NA, "b"))
+```
+```{r}
+flights |> 
+  filter(is.na(dep_time))
+```
+```{r}
+flights |> 
+  filter(month == 1, day == 1) |> 
+  arrange(dep_time)
+```
+```{r}
+flights |> 
+  filter(month == 1, day == 1) |> 
+  arrange(desc(is.na(dep_time)), dep_time)
+```
+### 12.2.4 Exercises
+```{r}
+flights |> 
+  mutate(
+    na_dep_time = is.na(dep_time),
+    na_sched_dep_time = is.na(sched_dep_time),
+    na_dep_delay = is.na(dep_delay)
+  ) |> 
+  count(na_dep_time & na_sched_dep_time & na_dep_delay )
+```
+## 12.3 Boolean algebra
+### 12.3.1 Missing values
+```{r}
+df <- tibble(x = c(TRUE, FALSE, NA))
+```
+```{r}
+df |> 
+  mutate(
+    and = x & NA,
+    or = x | NA
+  )
+```
+### 12.3.2 Order of operations
+```{r}
+flights |> 
+  filter(month == 11 | month == 12)
+```
+```{r}
+flights |> 
+  filter(month == 11 | 12)
+```
+```{r}
+flights |> 
+  mutate(
+    nov = month == 11,
+    final = nov | 12,
+    .keep = "used"
+  )
+```
+### 12.3.3 %in%
+```{r}
+1:12 %in% c(1, 5, 11)
+```
+```{r}
+letters[1:10] %in% c("a", "e", "i", "o", "u")
+```
+```{r}
+flights |> 
+  filter(month %in% c(11, 12))
+```
+```{r}
+c(1, 2, NA) == NA
+```
+```{r}
+c(1, 2, NA) %in% NA
+```
+```{r}
+flights |> 
+  filter(dep_time %in% c(NA, 0800))
+```
+### 12.3.4 Exercises
+```{r}
+flights |> 
+  filter(is.na(arr_delay) & !is.na(dep_delay))
+```
+```{r}
+flights |> 
+  filter(
+    !is.na(arr_time) & 
+      !is.na(sched_arr_time) & 
+      is.na(arr_delay))
+```
+```{r}
+flights |> 
+  filter(is.na(dep_time)) |>  
+  summarise(across(everything(), ~ sum(is.na(.)))) |>  
+  select(where(~ . > 0))
+```
+```{r}
+canceled_flights <- flights |> 
+  mutate(cancelled = is.na(dep_time)) |> 
+  group_by(year, month, day) |> 
+  summarise(
+    canceled_flights = sum(cancelled),
+    total_flights = n(),
+    canceled_prop = mean(cancelled),
+    .groups = "drop"
+  )
+```
+```{r}
+canceled_flights
+```
+## 12.4 Summaries
+### 12.4.1 Logical summaries
+```{r}
+flights |> 
+  group_by(year, month, day) |> 
+  summarize(
+    all_delayed = all(dep_delay <= 60, na.rm = TRUE),
+    any_long_delay = any(arr_delay >= 300, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+### 12.4.2 Numeric summaries of logical vectors
+```{r}
+flights |> 
+  group_by(year, month, day) |> 
+  summarize(
+    proportion_delayed = mean(dep_delay < 60, na.rm =  TRUE),
+    count_long_delay = sum(arr_delay >= 300, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+### 12.4.3 Logical subsetting
+```{r}
+flights |> 
+  filter(arr_delay > 0) |> 
+  group_by(year, month, day) |> 
+  summarize(
+    behind = mean(arr_delay),
+    n = n(),
+    .groups = "drop"
+  )
+```
+```{r}
+flights |> 
+  group_by(year, month, day) |> 
+  summarize(
+    behind = mean(arr_delay[arr_delay > 0], na.rm = TRUE),
+    ahead = mean(arr_delay[arr_delay < 0], na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
+## 12.5 Conditional transformations
+### 12.5.1 if_else()
+```{r}
+x <- c(-3:3, NA)
+```
+```{r}
+if_else(x > 0, "+ve", "-ve")
+```
+```{r}
+if_else(x < 0, -x, x)
+```
+```{r}
+x1 <- c(NA, 1, 2, NA)
+```
+```{r}
+y1 <- c(3, NA, 3, 6)
+```
+```{r}
+if_else(is.na(x1), y1, x1)
+```
+```{r}
+if_else(x == 0, "0", if_else(x < 0, "-ve", "+ve"), "???")
+```
+### 12.5.2 case_when()
+```{r}
+x <- c(-3:3, NA)
+```
+```{r}
+case_when(
+  x == 0 ~ "0",
+  x < 0 ~ "-ve",
+  x > 0 ~" +ve",
+  is.na(x) ~ "???"
+)
+```
+```{r}
+case_when(
+  x < 0 ~ "-ve",
+  x > 0 ~ "+ve"
+)
+```
+```{r}
+case_when(
+  x < 0 ~ "-ve",
+  x > 0 ~ "+ve",
+  .default = "???"
+)
+```
+```{r}
+case_when(
+  x > 0 ~ "+ve",
+  x > 2 ~ "big"
+)
+```
+```{r}
+flights |> 
+  mutate(
+    status = case_when(
+      is.na(arr_delay) ~ "cancelled",
+      arr_delay < -30 ~ "very early",
+      arr_delay < -15 ~ "early",
+      abs(arr_delay) <= 15 ~ "on time",
+      arr_delay < 60 ~ "late",
+      arr_delay < Inf ~ "very late"
+    )
+  )
+```
+### 12.5.3 Compatible types
+```{r}
+if_else(TRUE, "a", 1)
+```
+```{r}
+case_when(
+  x < -1 ~ TRUE,
+  x > 0 ~ now()
+)
+```
+### 12.5.4 Exercises
+```{r}
+x <- c(0:20)
+```
+```{r}
+case_when(
+  x %% 2 == 0 ~ "even",
+  x %% 2 != 0 ~ "odd"
+)
+```
+```{r}
+x <- c("Monday", "Saturday", "Wednesday")
+```
+
+```{r}
+if_else(
+  x == "Saturday", "Weekend", "Weekday"
+)
+```
+
+```{r}
+x <- c(-5, 3, -8, 0, 7)
+```
+
+```{r}
+abs_x <- if_else(x < 0, -x, x)
+```
+```{r}
+abs_x
+```
+
+
+
+
